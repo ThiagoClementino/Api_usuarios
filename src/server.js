@@ -2,8 +2,8 @@
 require('dotenv').config();
 
 const express = require('express');
-const connectDB = require('./src/config/database');
-const userRoutes = require('./src/routes/userRoutes');
+const connectDB = require('./config/database');
+const userRoutes = require('./routes/userRoutes');
 
 // Cria uma instância do Express
 const app = express();
