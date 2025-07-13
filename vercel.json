@@ -1,1 +1,23 @@
-{ "source": "/(.*)", "destination": "/" }
+{
+    "version": 2,
+    "builds": [
+        {
+            "src": "index.js",
+            "use": "@vercel/node"
+        }, { "source": "/(.*)", "destination": "/" }
+    ],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "/",
+            "methods": [
+                "GET",
+                "POST",
+                "PUT",
+                "PATCH",
+                "DELETE",
+                "OPTIONS"
+            ]
+        }
+    ]
+}
