@@ -1,13 +1,13 @@
 // Carrega as variáveis de ambiente do arquivo .env
 require('dotenv').config();
-
+const cors = require('cors'); // 1. Importe o pacote cors
 const express = require('express');
 const connectDB = require('./config/database');
 const userRoutes = require('./routes/userRoutes');
 
 // Cria uma instância do Express
 const app = express();
-
+app.use(cors());
 // Conecta ao banco de dados
 connectDB();
 
@@ -29,11 +29,11 @@ app.get('/', (req, res) => {
 app.use('/api', userRoutes);
 
 // Define a porta do servidor
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
 // Inicia o servidor
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-  console.log(`Acesse: http://localhost:${PORT}`);
+app.listen(PORT,  () => {
+  
+  console.log(`Servidor rodando, acesse: http://localhost:${PORT}`);
 });
 
