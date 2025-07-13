@@ -165,7 +165,7 @@ if (process.env.VERCEL) {
   module.exports = app;
 } else {
   // Define a porta do servidor
-  const PORT = process.env.PORT || 3000;
+  const PORT = process.env.PORT || 5000;
 
   // Inicia o servidor apenas em ambiente local
   app.listen(PORT, '0.0.0.0', () => {
