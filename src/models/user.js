@@ -27,14 +27,17 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Telefone é obrigatório"],
       trim: true,
-      match: [/^[\d\s\-\(\)\+]+$/, "Por favor, insira um telefone válido"],
+      match: [/^[\d\s\-\(\+]+$/, "Por favor, insira um telefone válido"],
     },
     senha: {
       type: String,
       required: [true, "Senha é obrigatória"],
       minlength: [6, "Senha deve ter pelo menos 6 caracteres"],
+      // Adicionado: Não retornar a senha por padrão em consultas
+      select: false,
     },
-    passorwordResetToken: String,
+    // CORREÇÃO: Corrigido o erro de digitação de 'passorwordResetToken' para 'passwordResetToken'
+    passwordResetToken: String,
     passwordResetExpires: Date,
   },
   {
@@ -46,6 +49,7 @@ const userSchema = new mongoose.Schema(
 // Middleware que executa antes de salvar o usuário
 userSchema.pre("save", async function (next) {
   // Se a senha não foi modificada, pula para o próximo middleware
+  // Isso é importante para que o token de reset possa ser salvo sem re-criptografar a senha
   if (!this.isModified("senha")) {
     return next();
   }
@@ -69,6 +73,7 @@ userSchema.methods.compararSenha = async function (senhaFornecida) {
 };
 
 // Método para remover a senha do objeto quando convertido para JSON
+// Mantido, mas o 'select: false' no schema já ajuda
 userSchema.methods.toJSON = function () {
   const userObject = this.toObject();
   delete userObject.senha;
@@ -81,7 +86,8 @@ userSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString("hex");
 
   // 2. Criptografa o token para salvar no banco de dados (por segurança)
-  this.passorwordResetToken = crypto
+  // CORREÇÃO: Usa o campo corrigido 'passwordResetToken'
+  this.passwordResetToken = crypto
     .createHash("sha256")
     .update(resetToken)
     .digest("hex");

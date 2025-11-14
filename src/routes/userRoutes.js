@@ -4,6 +4,10 @@ const User = require("../models/user");
 const sendEmail = require("../config/email");
 const crypto = require("crypto");
 
+// =================================================================
+// ROTAS DE AUTENTICAÇÃO (REGISTRO E LOGIN) - Mantidas
+// =================================================================
+
 router.post("/register", async (req, res) => {
   try {
     // Extrai os dados do corpo da requisição
@@ -142,6 +146,10 @@ router.get("/users", async (req, res) => {
   }
 });
 
+// =================================================================
+// ROTAS DE RECUPERAÇÃO DE SENHA - CORRIGIDAS
+// =================================================================
+
 router.post("/forgot-password", async (req, res) => {
   try {
     const { email } = req.body;
@@ -170,8 +178,10 @@ router.post("/forgot-password", async (req, res) => {
     await user.save({ validateBeforeSave: false });
 
     // 2. Envia o email com o link de recuperação
-    // A URL deve apontar para a rota do seu frontend que irá consumir o endpoint de redefinição
-    const resetURL = `http://localhost:3000/reset-password/${resetToken}`;
+    // CORREÇÃO: Usa a variável de ambiente FRONTEND_URL para a URL base
+    const frontendURL = process.env.FRONTEND_URL || "http://localhost:3000";
+    const resetURL = `${frontendURL}/reset-password/${resetToken}`;
+
     const message = `Você solicitou a recuperação de senha. Use o link a seguir para redefinir sua senha: ${resetURL}\n\nEste link é válido por 1 hora.`;
     const htmlMessage = `<p>Você solicitou a recuperação de senha.</p><p>Use o link a seguir para redefinir sua senha: <a href="${resetURL}">${resetURL}</a></p><p>Este link é válido por 1 hora.</p>`;
 
@@ -205,6 +215,8 @@ router.post("/forgot-password", async (req, res) => {
 
 router.patch("/reset-password/:token", async (req, res) => {
   try {
+    // A lógica de busca do token já estava correta, pois o erro de digitação
+    // estava no modelo (user.js), que já foi corrigido.
     const hashedToken = crypto
       .createHash("sha256")
       .update(req.params.token)
@@ -246,6 +258,7 @@ router.patch("/reset-password/:token", async (req, res) => {
       });
     }
 
+    // A senha será automaticamente criptografada pelo middleware 'pre("save")' no modelo User
     user.senha = senha;
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
