@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 
 // Define o schema (estrutura) do usuário
 const userSchema = new mongoose.Schema(
@@ -72,6 +73,24 @@ userSchema.methods.toJSON = function () {
   const userObject = this.toObject();
   delete userObject.senha;
   return userObject;
+};
+
+// Método para gerar o token de recuperação de senha
+userSchema.methods.createPasswordResetToken = function () {
+  // 1. Gera um token aleatório de 32 bytes
+  const resetToken = crypto.randomBytes(32).toString("hex");
+
+  // 2. Criptografa o token para salvar no banco de dados (por segurança)
+  this.passorwordResetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  // 3. Define o tempo de expiração (1 hora)
+  this.passwordResetExpires = Date.now() + 60 * 60 * 1000; // 1 hora
+
+  // 4. Retorna o token NÃO criptografado para ser enviado por e-mail
+  return resetToken;
 };
 
 // Cria e exporta o modelo User
